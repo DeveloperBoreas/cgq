@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.ForGetActivity">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/forgetPsdContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/userNameContent"
+            android:hint="请输入手机号"
+            android:textSize="16sp"
+            app:boxBackgroundMode="filled"
+            app:counterOverflowTextAppearance="@color/colorBlue"
+            app:counterTextAppearance="@color/colorBlue">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/forgetPsdInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/forgetSure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/login_btn_background"
+            android:text="确定找回"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp" />
+    </RelativeLayout>
+</layout>

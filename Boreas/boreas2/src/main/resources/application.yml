@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/boreas?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: cgq951000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
