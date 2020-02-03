@@ -37,7 +37,7 @@ public class LoginActivity extends BaseActivity<ActivityLoginBinding> implements
     @Override
     public void initView(ActivityLoginBinding activityLoginBinding) {
         this.binding = activityLoginBinding;
-        Glide.with(this).load("http://172.20.10.12:8080/images/a.jpg").into(this.binding.logo);
+//        Glide.with(this).load("http://172.20.10.12:8080/images/a.jpg").into(this.binding.logo);
         this.binding.login.setOnClickListener(new ClickProxy(view -> {
             if (this.verLoginParams()) {
                 this.showLoadingDialog();
