@@ -18,14 +18,35 @@ public class PaperPresenter extends IPaperPresenter {
     }
 
     @Override
-    public void save(LoginReceBean.DataBean.ResearchPaper paper, boolean isEdit) {
+    public void save(LoginReceBean.DataBean.ResearchPaper paper) {
         if (isNetWorkEnable()) {
             apiService.insertPaper(paper)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(data -> {
                         if (data.getRetCode() == 0) {
-                            new RxTimer().timer(300, number -> iPaperViewInterface.onSuccess(isEdit));
+                            new RxTimer().timer(300, number -> iPaperViewInterface.onSuccess());
+                        } else {
+                            new RxTimer().timer(300, number -> iPaperViewInterface.onFailed(data.getMsg()));
+                        }
+                    }, e -> {
+                        Logger.e(e.getMessage());
+                        new RxTimer().timer(300, number -> iPaperViewInterface.onFailed(e.getMessage()));
+                    });
+        } else {
+            this.noNetWork();
+        }
+    }
+
+    @Override
+    public void update(LoginReceBean.DataBean.ResearchPaper paper) {
+        if (isNetWorkEnable()) {
+            apiService.updatePaper(paper)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        if (data.getRetCode() == 0) {
+                            new RxTimer().timer(300, number -> iPaperViewInterface.onUpdateSuccess());
                         } else {
                             new RxTimer().timer(300, number -> iPaperViewInterface.onFailed(data.getMsg()));
                         }

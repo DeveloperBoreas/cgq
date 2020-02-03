@@ -22,4 +22,6 @@ public abstract class IEditPresenter extends Persenter {
     public abstract void addUser(UserInfo userInfo);
 
     public abstract void updateUser(UserInfo userInfo);
+
+    public abstract void uploadFile(String path, int id);
 }

@@ -53,6 +53,7 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
         LoginReceBean.DataBean.Composition com = (LoginReceBean.DataBean.Composition) getIntent().getSerializableExtra("com");
         isEdit = getIntent().getBooleanExtra("isEdit", false);
         if (com != null) {
+            this.tempComId = com.getId();
             this.setEditData(this.binding.alias, com.getBook_name());
             this.setEditData(this.binding.author, com.getBook_auther());
             this.setEditData(this.binding.otherAuthor, com.getBook_other_auther() == null ? "" : com.getBook_other_auther());
@@ -64,8 +65,8 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
             this.setEditData(this.binding.bearPalm, com.getBook_bear_palm() == null ? "" : com.getBook_bear_palm());
             if (!isEdit) {
                 this.binding.save.setEnabled(false);
+                this.binding.save.setVisibility(View.GONE);
             }
-            return;
         }
         this.binding.pressDate.setOnClickListener(new ClickProxy(view -> {
             this.showDateSwitcher();
@@ -84,7 +85,12 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
                 composition.setBook_press_date(this.binding.pressDateText.getText().toString().trim());
                 composition.setBook_bear_palm(this.binding.bearPalm.getText().toString().trim());
                 this.showLoadingDialog();
-                this.presenter.save(composition, isEdit);
+                if (isEdit) {
+                    composition.setId(tempComId);
+                    this.presenter.update(composition);
+                } else {
+                    this.presenter.save(composition);
+                }
             }
         }));
     }
@@ -175,14 +181,16 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
     }
 
     @Override
-    public void onSuccess(boolean isEdit) {
+    public void onSuccess() {
         this.dimissLoadingDialog();
-        if (isEdit) {
-            Toast.makeText(this, "更新书籍成功!", Toast.LENGTH_SHORT).show();
-            return;
-        }
         Toast.makeText(this, "添加书籍成功!", Toast.LENGTH_SHORT).show();
     }
+
+    public void onUpdateSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "更新书籍成功!", Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     public void onFailed(String msg) {

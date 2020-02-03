@@ -5,10 +5,15 @@ import com.boreas.persenter.IPersenters.IEditPresenter;
 import com.boreas.view.IViewInterface.IEditViewInterface;
 import com.orhanobut.logger.Logger;
 
+import java.io.File;
+
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 public class EditPersenter extends IEditPresenter {
     private IEditViewInterface viewInterface;
@@ -154,6 +159,30 @@ public class EditPersenter extends IEditPresenter {
                     .subscribe(data -> {
                         if (data.getRetCode() == 0) {
                             viewInterface.onUpdateSuccess("更新教师信息成功");
+                        } else {
+                            viewInterface.onFailed(data.getMsg());
+                        }
+                    }, e -> {
+                        viewInterface.onFailed(e.getMessage());
+                    });
+        } else {
+            this.noNetWork();
+        }
+    }
+
+    @Override
+    public void uploadFile(String path, int id) {
+        if (isNetWorkEnable()) {
+            File file = new File(path);
+            RequestBody fileRQ = RequestBody.create(MediaType.parse("image/*"), file);
+            MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName() + "@@@@@" + id, fileRQ);
+            apiService.uploadFile(part)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        Logger.e(data.toString());
+                        if (data.getRetCode() == 0) {
+                            viewInterface.onUpLoadSuccess("上传成功" + data.getMsg());
                         } else {
                             viewInterface.onFailed(data.getMsg());
                         }

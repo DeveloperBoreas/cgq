@@ -12,6 +12,7 @@ import com.boreas.framework.ClickProxy;
 import com.boreas.modle.LoginReceBean;
 import com.boreas.persenter.PersenterImpl.LoginPersenterImpl;
 import com.boreas.view.IViewInterface.ILoginViewInterface;
+import com.bumptech.glide.Glide;
 
 public class LoginActivity extends BaseActivity<ActivityLoginBinding> implements ILoginViewInterface<LoginReceBean> {
 
@@ -36,6 +37,7 @@ public class LoginActivity extends BaseActivity<ActivityLoginBinding> implements
     @Override
     public void initView(ActivityLoginBinding activityLoginBinding) {
         this.binding = activityLoginBinding;
+        Glide.with(this).load("http://172.20.10.12:8080/images/a.jpg").into(this.binding.logo);
         this.binding.login.setOnClickListener(new ClickProxy(view -> {
             if (this.verLoginParams()) {
                 this.showLoadingDialog();

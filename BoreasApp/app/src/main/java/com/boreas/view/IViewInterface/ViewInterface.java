@@ -1,4 +1,4 @@
-package com.boreas.view;
+package com.boreas.view.IViewInterface;
 
 public interface ViewInterface {
 

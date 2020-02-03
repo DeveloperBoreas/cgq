@@ -5,5 +5,7 @@ import com.boreas.persenter.Persenter;
 
 public abstract class IProPresenter extends Persenter {
 
-    public abstract void save(LoginReceBean.DataBean.ResearchPro pro, boolean isEdit);
+    public abstract void save(LoginReceBean.DataBean.ResearchPro pro);
+
+    public abstract void update(LoginReceBean.DataBean.ResearchPro pro);
 }

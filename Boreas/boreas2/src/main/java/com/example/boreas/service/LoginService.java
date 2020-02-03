@@ -200,6 +200,7 @@ public class LoginService {
         loginReceBean.setCompositions(compositions);
         loginReceBean.setName(userInfo.getUser_name());
         loginReceBean.setPsd(userInfo.getUser_password());
+        loginReceBean.setHeadIcon(userInfo.getUser_head_icon());
         return loginReceBean;
     }
 

@@ -62,8 +62,8 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
             this.setEditData(this.binding.bearPalm, tempPro.getPro_bear_palm() == null ? "" : tempPro.getPro_bear_palm());
             if (!isEdit) {
                 this.binding.save.setEnabled(false);
+                this.binding.save.setVisibility(View.GONE);
             }
-            return;
         }
         this.binding.finishDate.setOnClickListener(new ClickProxy(view -> {
             this.showDateSwitcher();
@@ -71,7 +71,6 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
         this.binding.save.setOnClickListener(new ClickProxy(v -> {
             if (this.verParams()) {
                 LoginReceBean.DataBean.ResearchPro pro = new LoginReceBean.DataBean.ResearchPro();
-                pro.setId(tempProId == -1 ? -1 : tempProId);
                 pro.setPro_bear_palm(this.binding.bearPalm.getText().toString().trim());
                 pro.setPro_current_status(this.binding.status.getText().toString().trim());
                 pro.setPro_finish_date(this.binding.finishDateText.getText().toString().trim());
@@ -79,7 +78,12 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
                 pro.setPro_level(Integer.parseInt(this.binding.level.getText().toString().trim()));
                 pro.setPro_name(this.binding.alias.getText().toString().trim());
                 this.showLoadingDialog();
-                proPresenter.save(pro, isEdit);
+                if (isEdit) {
+                    pro.setId(tempProId == -1 ? -1 : tempProId);
+                    proPresenter.update(pro);
+                } else {
+                    proPresenter.save(pro);
+                }
             }
         }));
     }
@@ -172,13 +176,15 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
     }
 
     @Override
-    public void onSuccess(boolean isEdit) {
+    public void onSuccess() {
         this.dimissLoadingDialog();
-        if (isEdit) {
-            Toast.makeText(this, "更新项目成功!", Toast.LENGTH_SHORT).show();
-            return;
-        }
         Toast.makeText(this, "添加项目成功!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onUpdateSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "更新项目成功!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

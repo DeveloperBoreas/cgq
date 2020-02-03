@@ -18,14 +18,35 @@ public class ComPresenter extends IComPresenter {
     }
 
     @Override
-    public void save(LoginReceBean.DataBean.Composition composition, boolean isEdit) {
+    public void save(LoginReceBean.DataBean.Composition composition) {
         if (isNetWorkEnable()) {
             apiService.insertComposition(composition)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(data -> {
                         if (data.getRetCode() == 0) {
-                            new RxTimer().timer(300, number -> iComViewInterface.onSuccess(isEdit));
+                            new RxTimer().timer(300, number -> iComViewInterface.onSuccess());
+                        } else {
+                            new RxTimer().timer(300, number -> iComViewInterface.onFailed(data.getMsg()));
+                        }
+                    }, e -> {
+                        Logger.e(e.getMessage());
+                        new RxTimer().timer(300, number -> iComViewInterface.onFailed(e.getMessage()));
+                    });
+        } else {
+            this.noNetWork();
+        }
+    }
+
+    @Override
+    public void update(LoginReceBean.DataBean.Composition composition) {
+        if (isNetWorkEnable()) {
+            apiService.updateComPositon(composition)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        if (data.getRetCode() == 0) {
+                            new RxTimer().timer(300, number -> iComViewInterface.onUpdateSuccess());
                         } else {
                             new RxTimer().timer(300, number -> iComViewInterface.onFailed(data.getMsg()));
                         }

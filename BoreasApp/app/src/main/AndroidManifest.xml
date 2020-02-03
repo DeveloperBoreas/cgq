@@ -18,8 +18,10 @@
         <activity
             android:name=".view.ForGetActivity"
             android:label="@string/title_activity_edit_forget"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".view.ComPositionActivity" android:screenOrientation="portrait" />
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.ComPositionActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".view.PaperActivity"
             android:label="@string/title_activity_edit_paper"
@@ -35,7 +37,8 @@
         <activity
             android:name=".view.EditUserActivity"
             android:label="@string/title_activity_edit_user"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".view.LoginActivity"
             android:screenOrientation="portrait">

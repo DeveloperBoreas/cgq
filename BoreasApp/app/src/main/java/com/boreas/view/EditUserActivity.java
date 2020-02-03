@@ -15,13 +15,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.boreas.R;
+import com.boreas.api.BuildConfig;
 import com.boreas.base.BaseActivity;
 import com.boreas.databinding.ActivityEditUserBinding;
+import com.boreas.databinding.NavigationDrawerHeaderBinding;
 import com.boreas.framework.ClickProxy;
+import com.boreas.framework.GlideLoader;
 import com.boreas.framework.RxTimer;
 import com.boreas.modle.ClipuesBean;
 import com.boreas.modle.ComBean;
@@ -32,6 +38,9 @@ import com.boreas.modle.UserInfo;
 import com.boreas.persenter.PersenterImpl.EditPersenter;
 import com.boreas.utils.TimeUtil;
 import com.boreas.view.IViewInterface.IEditViewInterface;
+import com.bumptech.glide.Glide;
+import com.lcw.library.imagepicker.ImagePicker;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,9 +66,11 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
     private static final int PRO_REQUEST = 1001;
     private static final int PAPER_REQUEST = 2002;
     private static final int COM_REQUEST = 3003;
+    private static final int REQUEST_SELECT_IMAGES_CODE = 4004;
     private String sex = "男";
     private boolean isEdit;
-    private boolean isEdit1;
+    private NavigationDrawerHeaderBinding nvBind;
+    private int id;
 
     @Override
     public void initPersenter() {
@@ -386,6 +397,14 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
         } else if (requestCode == COM_REQUEST && resultCode == Activity.RESULT_OK) {
             showLoadingDialog();
             persenter.queryCom();
+        } else if (requestCode == REQUEST_SELECT_IMAGES_CODE && resultCode == Activity.RESULT_OK) {
+            ArrayList<String> mImagePaths = data.getStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES);
+            if (mImagePaths == null || mImagePaths.size() == 0) {
+                return;
+            }
+            Glide.with(nvBind.headIcon.getContext()).load(mImagePaths.get(0)).into(nvBind.headIcon);
+            this.showLoadingDialog();
+            this.persenter.uploadFile(mImagePaths.get(0), id);
         }
     }
 
@@ -424,10 +443,40 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
         }
     }
 
+    private void showImagePicker() {
+        ImagePicker.getInstance()
+                .setTitle("选择图片")
+                .showCamera(true)//设置是否显示拍照按钮
+                .showImage(true)//设置是否展示图片
+                .showVideo(false)//设置是否展示视频
+                .setSingleType(true)//设置图片视频不能同时选
+                .setImageLoader(new GlideLoader())//设置自定义图片加载器
+                .start(this, REQUEST_SELECT_IMAGES_CODE);//REQEST_SELECT_IMAGES_CODE为Intent调用的requestCode
+    }
+
     private void initUserInfo() {
         LoginReceBean.DataBean info = (LoginReceBean.DataBean) getIntent().getSerializableExtra("userInfo");
+        id = info.getUser_id();
         isEdit = getIntent().getBooleanExtra("isEdit", false);
+        if (isEdit) {
+            this.binding.drawer.removeView(this.binding.nv);
+        }
         if (info != null) {
+            if (!isEdit) {
+                nvBind = DataBindingUtil.bind(this.binding.nv.getHeaderView(0));
+                nvBind.alias.setText(info.getUser_alias() + "");
+                nvBind.userName.setText(info.getName() + "");
+                nvBind.userPsd.setText(info.getPsd() + "");
+                nvBind.phone.setText(info.getUser_telephone() + "");
+                Glide.with(nvBind.headIcon.getContext()).load(BuildConfig.BASE_URL + info.getHeadIcon()).error(R.drawable.bt).into(nvBind.headIcon);
+                nvBind.headIcon.setOnClickListener(new ClickProxy(v -> {
+                    this.showImagePicker();
+                }));
+                this.binding.aliasContent.setVisibility(View.GONE);
+                this.binding.nameContent.setVisibility(View.GONE);
+                this.binding.psdContent.setVisibility(View.GONE);
+                this.binding.phoneContent.setVisibility(View.GONE);
+            }
             this.setEditData(this.binding.alias, info.getUser_alias());
             this.binding.name.setClickable(false);
             this.binding.name.setFocusable(false);
@@ -462,7 +511,7 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
                 this.binding.proText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, ProActivity.class);
                     intent.putExtra("pro", info.getResearchPros().get(0));
-                    intent.putExtra("isEdit",isEdit);
+                    intent.putExtra("isEdit", isEdit);
                     this.startActivity(intent);
                 }));
             }
@@ -481,7 +530,7 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
                 this.binding.paperText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, PaperActivity.class);
                     intent.putExtra("paper", info.getResearchPapers().get(0));
-                    intent.putExtra("isEdit",isEdit);
+                    intent.putExtra("isEdit", isEdit);
                     this.startActivity(intent);
                 }));
             }
@@ -500,11 +549,12 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
                 this.binding.comPositionText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, ComPositionActivity.class);
                     intent.putExtra("com", info.getCompositions().get(0));
-                    intent.putExtra("isEdit",isEdit);
+                    intent.putExtra("isEdit", isEdit);
                     this.startActivity(intent);
                 }));
             }
             if (!isEdit) {
+                this.binding.save.setBackground(null);
                 this.binding.save.setEnabled(false);
             }
             if (info.getUser_sex().equals("男")) {
@@ -513,6 +563,10 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
             } else {
                 this.binding.male.setChecked(false);
                 this.binding.femle.setChecked(true);
+            }
+            if (!isEdit) {
+                this.binding.male.setEnabled(false);
+                this.binding.femle.setEnabled(false);
             }
             return;
         }
@@ -526,6 +580,12 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
 
     @Override
     public void onUpdateSuccess(String msg) {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onUpLoadSuccess(String msg) {
         this.dimissLoadingDialog();
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }

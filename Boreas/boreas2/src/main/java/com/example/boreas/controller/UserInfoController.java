@@ -4,17 +4,23 @@ import com.example.boreas.Constants;
 import com.example.boreas.model.*;
 import com.example.boreas.response.Response;
 import com.example.boreas.service.HandlerUserInfoService;
-import org.aspectj.apache.bcel.classfile.ConstantString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/")
 public class UserInfoController {
 
+    @Value("E:/fileUpload/")
+    private String uploadPath;
     @Autowired
     HandlerUserInfoService handlerUserInfoService;
 
@@ -90,23 +96,43 @@ public class UserInfoController {
         if (projectInfo == null) {
             return Response.fail("项目信息不能是空").setretCode(Constants.FAILED);
         }
-        if (projectInfo.getId() == -1) {
-            handlerUserInfoService.addPro(projectInfo);
-            return Response.ok().setretCode(Constants.SUCCESS);
-        }
         boolean isExist = false;
         List<ResearchProjectInfo> projectInfos = handlerUserInfoService.queryPro();
         if (projectInfos != null) {
             for (ResearchProjectInfo tempPro : projectInfos) {
                 if (tempPro.getId() == projectInfo.getId()) {
-                    handlerUserInfoService.addPro(projectInfo);
-                    return Response.ok().setretCode(Constants.SUCCESS);
+                    isExist = true;
+                    break;
                 }
+            }
+            if (isExist) {
+                return Response.fail("该项目已经存在！").setretCode(Constants.FAILED);
             }
         } else {
             handlerUserInfoService.addPro(projectInfo);
         }
         return Response.ok().setretCode(Constants.SUCCESS);
+    }
+
+    @PostMapping("/updatePro")
+    public Response updatePro(@RequestBody ResearchProjectInfo projectInfo) {
+        System.out.println(projectInfo.toString());
+        if (projectInfo == null) {
+            return Response.fail("更新项目信息不能为空").setretCode(Constants.FAILED);
+        }
+        if (projectInfo.getId() == -1) {
+            return Response.fail("当前更新项目ID不能为空").setretCode(Constants.FAILED);
+        }
+        List<ResearchProjectInfo> researchProjectInfos = handlerUserInfoService.queryPro();
+        for (ResearchProjectInfo info : researchProjectInfos) {
+            if (info.getId() == projectInfo.getId()) {
+                projectInfo.setId(info.getId());
+                handlerUserInfoService.addPro(projectInfo);
+                return Response.ok().setretCode(Constants.SUCCESS);
+            }
+        }
+        return Response.fail("更新项目信息失败").setretCode(Constants.FAILED);
+
     }
 
     @PostMapping("/insertPaper")
@@ -119,7 +145,7 @@ public class UserInfoController {
         List<ResearchPaper> papers = handlerUserInfoService.queryPaper();
         if (papers != null) {
             for (ResearchPaper researchPaper : papers) {
-                if (researchPaper.getPaper_name().equals(paper.getPaper_name())) {
+                if (researchPaper.getId() == paper.getId()) {
                     isExist = true;
                     break;
                 }
@@ -134,21 +160,37 @@ public class UserInfoController {
         return Response.ok().setretCode(Constants.SUCCESS);
     }
 
+    @PostMapping("/updatePaper")
+    public Response updatePaper(@RequestBody ResearchPaper paper) {
+        System.out.println(paper.toString());
+        if (paper == null) {
+            return Response.fail("更新论文信息不能为空").setretCode(Constants.FAILED);
+        }
+        if (paper.getId() == -1) {
+            return Response.fail("当前论文信息ID不能为空").setretCode(Constants.FAILED);
+        }
+        List<ResearchPaper> researchPapers = handlerUserInfoService.queryPaper();
+        for (ResearchPaper tempPaper : researchPapers) {
+            if (tempPaper.getId() == paper.getId()) {
+                paper.setId(tempPaper.getId());
+                handlerUserInfoService.addPaper(paper);
+                return Response.ok().setretCode(Constants.SUCCESS);
+            }
+        }
+        return Response.fail("更新论文信息失败").setretCode(Constants.FAILED);
+    }
+
     @PostMapping("/insertComPositon")
     public Response insertCom(@RequestBody ComPosition comPosition) {
         System.out.println(comPosition.toString());
         if (comPosition == null) {
             return Response.fail("著作信息不能为空").setretCode(Constants.FAILED);
         }
-        if (comPosition.getId() == -1) {
-            handlerUserInfoService.addComPosition(comPosition);
-            return Response.ok().setretCode(Constants.SUCCESS);
-        }
         boolean isExist = false;
         List<ComPosition> comPositions = handlerUserInfoService.queryCom();
         if (comPositions != null) {
             for (ComPosition com : comPositions) {
-                if (com.getBook_name().equals(comPosition.getBook_name())) {
+                if (com.getId() == comPosition.getId()) {
                     isExist = true;
                     break;
                 }
@@ -161,6 +203,26 @@ public class UserInfoController {
             handlerUserInfoService.addComPosition(comPosition);
         }
         return Response.ok().setretCode(Constants.SUCCESS);
+    }
+
+    @PostMapping("/updateComPositon")
+    public Response updateComPositon(@RequestBody ComPosition comPosition) {
+        System.out.println(comPosition.toString());
+        if (comPosition == null) {
+            return Response.fail("更新著作信息不能为空").setretCode(Constants.FAILED);
+        }
+        if (comPosition.getId() == -1) {
+            return Response.fail("当前著作信息ID不能为空").setretCode(Constants.FAILED);
+        }
+        List<ComPosition> comPositions = handlerUserInfoService.queryCom();
+        for (ComPosition tempComPosition : comPositions) {
+            if (tempComPosition.getId() == comPosition.getId()) {
+                comPosition.setId(tempComPosition.getId());
+                handlerUserInfoService.addComPosition(comPosition);
+                return Response.ok().setretCode(Constants.SUCCESS);
+            }
+        }
+        return Response.fail("更新著作信息失败").setretCode(Constants.FAILED);
     }
 
     @PostMapping("/insertUserInfo")
@@ -244,5 +306,41 @@ public class UserInfoController {
             e.printStackTrace();
         }
         return Response.fail("删除失败").setretCode(Constants.FAILED);
+    }
+
+    @PostMapping("/upload")
+    public Response upload(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return Response.fail("上传失败，请选择文件").setretCode(Constants.FAILED);
+        }
+        String fileName = file.getOriginalFilename();
+        String[] split = fileName.split("@@@@@");
+        fileName = split[0];
+        String userId = split[1];
+        fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" + fileName;
+        String path = uploadPath + fileName;
+        File dest = new File(path);
+        if (dest.exists()) {
+            return Response.fail("文件已经存在").setretCode(Constants.FAILED);
+        }
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdir();
+        }
+
+        try {
+            file.transferTo(dest); //保存文件
+            System.out.print("保存文件路径" + path + "\n");
+            UserInfo userInfo = handlerUserInfoService.queryUserInfoById(Integer.parseInt(userId));
+            if (userInfo == null) {
+                return Response.fail("上传失败，没有查询到该用户").setretCode(Constants.FAILED);
+            }
+            userInfo.setUser_head_icon("images/" + fileName);
+            handlerUserInfoService.addUserInfo(userInfo);
+
+        } catch (IOException e) {
+            return Response.fail("上传失败").setretCode(Constants.FAILED);
+        }
+
+        return Response.ok().setretCode(Constants.SUCCESS);
     }
 }

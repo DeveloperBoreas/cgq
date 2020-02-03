@@ -35,7 +35,16 @@ public class UserInfo {
     @Column(nullable = true)
     private String user_composition_ids;    //学术著作信息
     @Column(nullable = false)
-    private int user_permission;         //用户权限
+    private int user_permission;            //用户权限
+    private String user_head_icon;          //头像
+
+    public String getUser_head_icon() {
+        return user_head_icon;
+    }
+
+    public void setUser_head_icon(String user_head_icon) {
+        this.user_head_icon = user_head_icon;
+    }
 
     public String getUser_alias() {
         return user_alias;

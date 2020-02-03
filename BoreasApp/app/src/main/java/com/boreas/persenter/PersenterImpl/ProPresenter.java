@@ -18,14 +18,35 @@ public class ProPresenter extends IProPresenter {
     }
 
     @Override
-    public void save(LoginReceBean.DataBean.ResearchPro pro, boolean isEdit) {
+    public void save(LoginReceBean.DataBean.ResearchPro pro) {
         if (isNetWorkEnable()) {
             apiService.insertPro(pro)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(data -> {
                         if (data.getRetCode() == 0) {
-                            new RxTimer().timer(300, number -> iProViewInterface.onSuccess(isEdit));
+                            new RxTimer().timer(300, number -> iProViewInterface.onSuccess());
+                        } else {
+                            new RxTimer().timer(300, number -> iProViewInterface.onFailed(data.getMsg()));
+                        }
+                    }, e -> {
+                        Logger.e(e.getMessage());
+                        new RxTimer().timer(300, number -> iProViewInterface.onFailed(e.getMessage()));
+                    });
+        } else {
+            this.noNetWork();
+        }
+    }
+
+    @Override
+    public void update(LoginReceBean.DataBean.ResearchPro pro) {
+        if (isNetWorkEnable()) {
+            apiService.updatePro(pro)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        if (data.getRetCode() == 0) {
+                            new RxTimer().timer(300, number -> iProViewInterface.onUpdateSuccess());
                         } else {
                             new RxTimer().timer(300, number -> iProViewInterface.onFailed(data.getMsg()));
                         }

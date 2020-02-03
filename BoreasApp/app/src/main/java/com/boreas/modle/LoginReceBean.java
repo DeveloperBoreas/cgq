@@ -54,6 +54,15 @@ public class LoginReceBean implements Serializable {
         private ArrayList<ResearchPaper> researchPapers;
         private ArrayList<Composition> compositions;
         private int user_permission;         //用户权限
+        private String headIcon;
+
+        public String getHeadIcon() {
+            return headIcon;
+        }
+
+        public void setHeadIcon(String headIcon) {
+            this.headIcon = headIcon;
+        }
 
         public String getName() {
             return name;
@@ -168,7 +177,7 @@ public class LoginReceBean implements Serializable {
         }
 
         //所属系
-        public static class Clipue implements Serializable{
+        public static class Clipue implements Serializable {
             private int id;
             private String clipue_name;
 
@@ -190,7 +199,7 @@ public class LoginReceBean implements Serializable {
         }
 
         //科研项目信息
-        public static class ResearchPro implements Serializable{
+        public static class ResearchPro implements Serializable {
             private int id;
             private String pro_name;               //项目名称
             private int pro_level;              //项目级别

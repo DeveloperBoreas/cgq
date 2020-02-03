@@ -31,6 +31,7 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
     private ActivityPaperBinding binding;
     private PaperPresenter paperPresenter;
     private boolean isEdit;
+    private int tempPaperId = -1;
 
     @Override
     public void initPersenter() {
@@ -53,13 +54,17 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
         LoginReceBean.DataBean.ResearchPaper tempPaper = (LoginReceBean.DataBean.ResearchPaper) getIntent().getSerializableExtra("paper");
         isEdit = getIntent().getBooleanExtra("isEdit", false);
         if (tempPaper != null) {
+            this.tempPaperId = tempPaper.getId();
             this.setEditData(this.binding.alias, tempPaper.getPaper_name());
             this.setEditData(this.binding.author, tempPaper.getPaper_author());
             this.setEditData(this.binding.otherAuthor, tempPaper.getPaper_otherauthor() == null ? "" : tempPaper.getPaper_otherauthor());
             this.setEditData(this.binding.coding, tempPaper.getPaper_periodical_code());
             this.setTextData(this.binding.publishDateText, this.binding.publishDate, tempPaper.getPaper_publish_date());
             this.setEditData(this.binding.bearPalm, tempPaper.getPaper_bear_palm() == null ? "" : tempPaper.getPaper_bear_palm());
-            return;
+            if (!isEdit) {
+                this.binding.save.setEnabled(false);
+                this.binding.save.setVisibility(View.GONE);
+            }
         }
         this.binding.publishDate.setOnClickListener(new ClickProxy(view -> {
             this.showDateSwitcher();
@@ -74,7 +79,12 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
                 paper.setPaper_publish_date(this.binding.publishDateText.getText().toString().trim());
                 paper.setPaper_bear_palm(this.binding.bearPalm.getText().toString().trim());
                 this.showLoadingDialog();
-                this.paperPresenter.save(paper, isEdit);
+                if (isEdit) {
+                    paper.setId(tempPaperId);
+                    this.paperPresenter.update(paper);
+                } else {
+                    this.paperPresenter.save(paper);
+                }
             }
         }));
     }
@@ -153,13 +163,15 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
     }
 
     @Override
-    public void onSuccess(boolean isEdit) {
+    public void onSuccess() {
         this.dimissLoadingDialog();
-        if (isEdit) {
-            Toast.makeText(this, "更新论文成功!", Toast.LENGTH_SHORT).show();
-            return;
-        }
         Toast.makeText(this, "添加论文成功!", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onUpdateSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "更新论文成功!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

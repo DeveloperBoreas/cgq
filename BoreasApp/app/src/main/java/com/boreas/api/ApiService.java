@@ -10,11 +10,14 @@ import com.boreas.modle.UserAdminReceBean;
 import com.boreas.modle.UserInfo;
 
 import io.reactivex.Observable;
+import okhttp3.MultipartBody;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 
 public interface ApiService {
 
@@ -46,11 +49,20 @@ public interface ApiService {
     @POST("/insertPro")
     Observable<BaseResponse> insertPro(@Body LoginReceBean.DataBean.ResearchPro pro);
 
+    @POST("/updatePro")
+    Observable<BaseResponse> updatePro(@Body LoginReceBean.DataBean.ResearchPro pro);
+
     @POST("/insertPaper")
     Observable<BaseResponse> insertPaper(@Body LoginReceBean.DataBean.ResearchPaper paper);
 
+    @POST("/updatePaper")
+    Observable<BaseResponse> updatePaper(@Body LoginReceBean.DataBean.ResearchPaper paper);
+
     @POST("/insertComPositon")
     Observable<BaseResponse> insertComposition(@Body LoginReceBean.DataBean.Composition composition);
+
+    @POST("/updateComPositon")
+    Observable<BaseResponse> updateComPositon(@Body LoginReceBean.DataBean.Composition composition);
 
     @POST("/insertUserInfo")
     Observable<BaseResponse> insertUserInfo(@Body UserInfo userInfo);
@@ -65,4 +77,8 @@ public interface ApiService {
 
     @POST("/updateUserInfo")
     Observable<BaseResponse> updateUserInfo(@Body UserInfo userInfo);
+
+    @POST("/upload")
+    @Multipart
+    Observable<BaseResponse> uploadFile(@Part MultipartBody.Part body);
 }

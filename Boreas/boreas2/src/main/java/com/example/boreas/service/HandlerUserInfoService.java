@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class HandlerUserInfoService {
@@ -75,6 +76,12 @@ public class HandlerUserInfoService {
             return all;
         }
         return null;
+    }
+
+    public UserInfo queryUserInfoById(int id) {
+        Optional<UserInfo> userInfo = userInfoRepository.findById(id);
+        UserInfo info = userInfo.get();
+        return info;
     }
 
     public void addUserInfo(UserInfo info) {
