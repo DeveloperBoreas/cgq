@@ -1,6 +1,7 @@
 package com.boreas.view;
 
 import android.content.Intent;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.widget.Toast;
 

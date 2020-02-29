@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 /**
- * author : 王秀清
+ * author : cgq
  * e-mail :  13051089921@163.com
  * create :   On 2018/8/23下午8:47
  * <p>

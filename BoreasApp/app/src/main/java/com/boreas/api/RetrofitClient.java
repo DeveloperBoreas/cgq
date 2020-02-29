@@ -146,7 +146,7 @@ public class RetrofitClient {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 InputStream is = null;
-                byte[] buf = new byte[2048];
+                byte[] buf = new byte[2048];//缓存区的大小
                 int len = 0;
                 FileOutputStream fos = null;
 

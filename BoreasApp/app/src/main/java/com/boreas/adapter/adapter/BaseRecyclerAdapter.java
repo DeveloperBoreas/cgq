@@ -12,13 +12,7 @@ import com.boreas.framework.ClickProxy;
 
 import java.util.List;
 
-/**
- * author : 王秀清
- * e-mail :  13051089921@163.com
- * create :   On 2018/8/23下午8:41
- * <p>
- * des    :
- */
+
 public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRecyclerHolder> {
 
     private static final String TAG = BaseRecyclerAdapter.class.getSimpleName();

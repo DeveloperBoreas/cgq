@@ -29,6 +29,12 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/switch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="   Switch" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -42,5 +48,6 @@
             android:text="确定找回"
             android:textColor="@color/colorWhite"
             android:textSize="17sp" />
+
     </RelativeLayout>
 </layout>

@@ -456,12 +456,12 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
 
     private void initUserInfo() {
         LoginReceBean.DataBean info = (LoginReceBean.DataBean) getIntent().getSerializableExtra("userInfo");
-        id = info.getUser_id();
         isEdit = getIntent().getBooleanExtra("isEdit", false);
         if (isEdit) {
             this.binding.drawer.removeView(this.binding.nv);
         }
         if (info != null) {
+            id = info.getUser_id();
             if (!isEdit) {
                 nvBind = DataBindingUtil.bind(this.binding.nv.getHeaderView(0));
                 nvBind.alias.setText(info.getUser_alias() + "");
