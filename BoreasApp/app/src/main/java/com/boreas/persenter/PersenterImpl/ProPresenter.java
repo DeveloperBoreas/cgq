@@ -6,6 +6,8 @@ import com.boreas.persenter.IPersenters.IProPresenter;
 import com.boreas.view.IViewInterface.IProViewInterface;
 import com.orhanobut.logger.Logger;
 
+import java.util.ArrayList;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -15,6 +17,27 @@ public class ProPresenter extends IProPresenter {
     public ProPresenter(IProViewInterface iProViewInterface) {
         super();
         this.iProViewInterface = iProViewInterface;
+    }
+
+    @Override
+    public void saves(ArrayList<LoginReceBean.DataBean.ResearchPro> pros) {
+        if (isNetWorkEnable()) {
+            apiService.insertPros(pros)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        if (data.getRetCode() == 0) {
+                            new RxTimer().timer(300, number -> iProViewInterface.onAddProsSuccess());
+                        } else {
+                            new RxTimer().timer(300, number -> iProViewInterface.onFailed(data.getMsg()));
+                        }
+                    }, e -> {
+                        Logger.e(e.getMessage());
+                        new RxTimer().timer(300, number -> iProViewInterface.onFailed(e.getMessage()));
+                    });
+        } else {
+            this.noNetWork();
+        }
     }
 
     @Override

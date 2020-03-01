@@ -9,6 +9,8 @@ import com.boreas.modle.ProBean;
 import com.boreas.modle.UserAdminReceBean;
 import com.boreas.modle.UserInfo;
 
+import java.util.ArrayList;
+
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import retrofit2.http.Body;
@@ -48,6 +50,9 @@ public interface ApiService {
 
     @POST("/insertPro")
     Observable<BaseResponse> insertPro(@Body LoginReceBean.DataBean.ResearchPro pro);
+
+    @POST("/insertPros")
+    Observable<BaseResponse> insertPros(@Body ArrayList<LoginReceBean.DataBean.ResearchPro> pros);
 
     @POST("/updatePro")
     Observable<BaseResponse> updatePro(@Body LoginReceBean.DataBean.ResearchPro pro);

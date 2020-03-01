@@ -2,7 +2,13 @@ package com.boreas.view;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +30,14 @@ import com.boreas.persenter.PersenterImpl.ProPresenter;
 import com.boreas.utils.TimeUtil;
 import com.boreas.view.IViewInterface.IProViewInterface;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+
+import jxl.Sheet;
+import jxl.Workbook;
 
 public class ProActivity extends BaseActivity<ActivityProBinding> implements IProViewInterface {
     private ActivityProBinding binding;
@@ -86,6 +99,91 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
                 }
             }
         }));
+        this.binding.openFile.setOnClickListener(new ClickProxy(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");//无类型限制
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, 1);
+        }));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            if (uri.getScheme().equalsIgnoreCase("content")) {
+                this.readExcel(getFilePathFromContentUri(uri, getContentResolver()));
+            } else {
+                Toast.makeText(this, "Scheme not mather", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void readExcel(String uri) {
+        ArrayList<LoginReceBean.DataBean.ResearchPro> datas = null;
+        try {
+            File file = new File(uri);
+            Log.e("yy", "file=" + file.getAbsolutePath());
+            InputStream is = new FileInputStream(file);
+            Workbook book = Workbook.getWorkbook(is);
+            book.getNumberOfSheets();
+            Sheet sheet = book.getSheet(0);
+            int Rows = sheet.getRows();
+            int columns = sheet.getColumns();
+            if (Rows <= 2) {
+                Toast.makeText(this, "该文件里边数据是空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            datas = new ArrayList<>();
+            for (int i = 2; i < Rows; ++i) { //获取行数 ，
+                LoginReceBean.DataBean.ResearchPro pro = new LoginReceBean.DataBean.ResearchPro();
+                String pro_name = sheet.getCell(1, i).getContents();
+                String pro_level = sheet.getCell(2, i).getContents();
+                String pro_money = sheet.getCell(3, i).getContents();
+                String pro_finish_date = sheet.getCell(4, i).getContents();
+                String pro_current_status = sheet.getCell(5, i).getContents();
+                String pro_bear_palm = sheet.getCell(6, i).getContents();
+                if (!TextUtils.isEmpty(pro_name)) {
+                    pro.setPro_name(pro_name);
+                }
+                if (!TextUtils.isEmpty(pro_level)) {
+                    pro.setPro_level(Integer.parseInt(pro_level));
+                }
+                if (!TextUtils.isEmpty(pro_money)) {
+                    pro.setPro_money(pro_money);
+                }
+                if (!TextUtils.isEmpty(pro_finish_date)) {
+                    pro.setPro_finish_date(pro_finish_date);
+                }
+                if (!TextUtils.isEmpty(pro_current_status)) {
+                    pro.setPro_current_status(pro_current_status);
+                }
+                if (!TextUtils.isEmpty(pro_bear_palm)) {
+                    pro.setPro_bear_palm(pro_bear_palm);
+                }
+                datas.add(pro);
+            }
+            book.close();
+        } catch (Exception e) {
+            Log.e("yy", "e" + e);
+        } finally {
+            if (datas != null) {
+                //上传服务器
+                proPresenter.saves(datas);
+            }
+        }
+    }
+
+    public static String getFilePathFromContentUri(Uri contentUri, ContentResolver contentResolver) {
+        String filePath;
+        String[] filePathColumn = {MediaStore.MediaColumns.DATA};
+        Cursor cursor = contentResolver.query(contentUri, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        filePath = cursor.getString(columnIndex);
+        cursor.close();
+        return filePath;
     }
 
     private void setEditData(EditText view, String data) {
@@ -191,6 +289,12 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
     public void onFailed(String msg) {
         this.dimissLoadingDialog();
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddProsSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "导入成功!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

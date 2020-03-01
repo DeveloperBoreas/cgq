@@ -6,4 +6,6 @@ public interface IProViewInterface extends ViewInterface {
     void onUpdateSuccess();
 
     void onFailed(String msg);
+
+    void onAddProsSuccess();
 }
