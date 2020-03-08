@@ -6,6 +6,8 @@ import com.boreas.persenter.IPersenters.IPaperPresenter;
 import com.boreas.view.IViewInterface.IPaperViewInterface;
 import com.orhanobut.logger.Logger;
 
+import java.util.ArrayList;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -17,6 +19,27 @@ public class PaperPresenter extends IPaperPresenter {
         this.iPaperViewInterface = iPaperViewInterface;
     }
 
+
+    @Override
+    public void saves(ArrayList<LoginReceBean.DataBean.ResearchPaper> papers) {
+        if (isNetWorkEnable()) {
+            apiService.insertPapers(papers)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(data -> {
+                        if (data.getRetCode() == 0) {
+                            new RxTimer().timer(300, number -> iPaperViewInterface.onAddPapersSuccess());
+                        } else {
+                            new RxTimer().timer(300, number -> iPaperViewInterface.onFailed(data.getMsg()));
+                        }
+                    }, e -> {
+                        Logger.e(e.getMessage());
+                        new RxTimer().timer(300, number -> iPaperViewInterface.onFailed(e.getMessage()));
+                    });
+        } else {
+            this.noNetWork();
+        }
+    }
     @Override
     public void save(LoginReceBean.DataBean.ResearchPaper paper) {
         if (isNetWorkEnable()) {

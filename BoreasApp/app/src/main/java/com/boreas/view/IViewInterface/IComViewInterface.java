@@ -6,4 +6,6 @@ public interface IComViewInterface extends ViewInterface {
     void onUpdateSuccess();
 
     void onFailed(String msg);
+
+    void onAddCompositionsSuccess();
 }

@@ -2,7 +2,10 @@ package com.boreas.view;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +27,20 @@ import com.boreas.persenter.PersenterImpl.ComPresenter;
 import com.boreas.utils.TimeUtil;
 import com.boreas.view.IViewInterface.IComViewInterface;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+
+import jxl.Sheet;
+import jxl.Workbook;
+
+import static com.boreas.view.ProActivity.getFilePathFromContentUri;
 
 public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding> implements IComViewInterface {
     private ActivityComPositionBinding binding;
-    private ComPresenter presenter;
+    private ComPresenter presenter;//ComPresenter   这不是有吗？
     private boolean isEdit;
     private int tempComId = -1;
 
@@ -93,8 +105,104 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
                 }
             }
         }));
+        this.binding.openFile.setOnClickListener(new ClickProxy(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");//无类型限制
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, 1);
+        }));
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            if (uri.getScheme().equalsIgnoreCase("content")) {
+                this.readExcel(getFilePathFromContentUri(uri, getContentResolver()));
+            } else {
+                Toast.makeText(this, "Scheme not mather", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
+    public void readExcel(String uri) {
+        ArrayList<LoginReceBean.DataBean.Composition> datas = null;
+        try {
+            File file = new File(uri);
+            Log.e("yy", "file=" + file.getAbsolutePath());
+            InputStream is = new FileInputStream(file);
+            Workbook book = Workbook.getWorkbook(is);
+            book.getNumberOfSheets();
+            Sheet sheet = book.getSheet(0);
+            int Rows = sheet.getRows();
+            int columns = sheet.getColumns();
+            if (Rows <= 2) {
+                Toast.makeText(this, "该文件里边数据是空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            datas = new ArrayList<>();
+            for (int i = 2; i < Rows; ++i) { //获取行数 ，
+                LoginReceBean.DataBean.Composition composition = new LoginReceBean.DataBean.Composition();
+                String  book_name = sheet.getCell(1, i).getContents();
+                String book_auther = sheet.getCell(2, i).getContents();
+                String book_other_auther = sheet.getCell(3, i).getContents();
+                String book_periodical_code = sheet.getCell(4, i).getContents();
+                String book_press = sheet.getCell(5, i).getContents();
+                String book_press_date = sheet.getCell(6, i).getContents();
+                String book_char_num = sheet.getCell(7, i).getContents();
+                String book_money = sheet.getCell(8, i).getContents();
+                String book_bear_palm = sheet.getCell(9, i).getContents();
+                if (!TextUtils.isEmpty( book_name)) {
+                    composition.setBook_name( book_name);
+                }
+                if (!TextUtils.isEmpty(book_auther)) {
+                    composition.setBook_auther(book_auther);
+                }
+                if (!TextUtils.isEmpty(book_other_auther)) {
+                    composition.setBook_other_auther(book_other_auther);
+                }
+                if (!TextUtils.isEmpty( book_periodical_code)) {
+                    composition.setBook_periodical_code( book_periodical_code);
+                }
+                if (!TextUtils.isEmpty( book_press)) {
+                    composition.setBook_press( book_press);
+                }
+                if (!TextUtils.isEmpty(book_press_date)) {
+                    composition.setBook_press_date(book_press_date);
+                }
+                if (!TextUtils.isEmpty(book_char_num)) {
+                    composition.setBook_char_num(book_char_num);
+                }
+                if (!TextUtils.isEmpty(book_money)) {
+                    composition.setBook_money(book_money);
+                }
+                if (!TextUtils.isEmpty(book_bear_palm)) {
+                    composition.setBook_bear_palm(book_bear_palm);
+                }
+
+
+                if(composition.getBook_name() != null &&
+                        composition.getBook_auther()!= null &&
+                        composition.getBook_bear_palm()!=null &&
+                        composition.getBook_char_num()!=null&&
+                        composition.getBook_money()!=null&&
+                         composition.getBook_other_auther()!=null&&
+                         composition.getBook_periodical_code()!=null&&
+                         composition.getBook_press()!=null&&
+                         composition.getBook_press_date()!=null){
+                    datas.add(composition);
+                }
+            }
+            book.close();
+        } catch (Exception e) {
+            Log.e("yy", "e" + e);
+        }finally {
+            if (datas != null) {
+                //上传服务器
+                presenter.saves(datas);
+            }
+        }
+    }
     private void setEditData(EditText view, String data) {
         view.setText(data + "");
         if (!isEdit) {
@@ -198,6 +306,11 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onAddCompositionsSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "导入成功!", Toast.LENGTH_SHORT).show();
+    }
     @Override
     public void showNoDataView() {
         this.dimissLoadingDialog();

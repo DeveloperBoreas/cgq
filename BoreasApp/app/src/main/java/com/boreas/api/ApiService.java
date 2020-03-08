@@ -60,11 +60,18 @@ public interface ApiService {
     @POST("/insertPaper")
     Observable<BaseResponse> insertPaper(@Body LoginReceBean.DataBean.ResearchPaper paper);
 
+    @POST("/insertPapers")
+    Observable<BaseResponse> insertPapers(@Body ArrayList<LoginReceBean.DataBean.ResearchPaper> papers);
+
     @POST("/updatePaper")
     Observable<BaseResponse> updatePaper(@Body LoginReceBean.DataBean.ResearchPaper paper);
 
     @POST("/insertComPositon")
     Observable<BaseResponse> insertComposition(@Body LoginReceBean.DataBean.Composition composition);
+
+    @POST("/insertComPositons")
+    Observable<BaseResponse> insertCompositions(@Body ArrayList<LoginReceBean.DataBean.Composition> compositions);
+
 
     @POST("/updateComPositon")
     Observable<BaseResponse> updateComPositon(@Body LoginReceBean.DataBean.Composition composition);

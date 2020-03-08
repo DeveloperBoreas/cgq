@@ -6,4 +6,6 @@ public interface IPaperViewInterface extends ViewInterface {
     void onUpdateSuccess();
 
     void onFailed(String msg);
+
+    void onAddPapersSuccess();
 }

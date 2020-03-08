@@ -2,7 +2,10 @@ package com.boreas.view;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +23,21 @@ import com.boreas.base.BaseActivity;
 import com.boreas.databinding.ActivityPaperBinding;
 import com.boreas.framework.ClickProxy;
 import com.boreas.modle.LoginReceBean;
+import com.boreas.persenter.PersenterImpl.ComPresenter;
 import com.boreas.persenter.PersenterImpl.PaperPresenter;
 import com.boreas.utils.TimeUtil;
 import com.boreas.view.IViewInterface.IPaperViewInterface;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+
+import jxl.Sheet;
+import jxl.Workbook;
+
+import static com.boreas.view.ProActivity.getFilePathFromContentUri;
 
 public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements IPaperViewInterface {
 
@@ -87,6 +100,93 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
                 }
             }
         }));
+        this.binding.openFile.setOnClickListener(new ClickProxy(v -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");//无类型限制
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, 1);
+        }));
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            if (uri.getScheme().equalsIgnoreCase("content")) {
+                this.readExcel(getFilePathFromContentUri(uri, getContentResolver()));
+            } else {
+                Toast.makeText(this, "Scheme not mather", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    public void readExcel(String uri) {
+        ArrayList<LoginReceBean.DataBean.ResearchPaper> datas = null;
+        try {
+            File file = new File(uri);
+            Log.e("yy", "file=" + file.getAbsolutePath());
+            InputStream is = new FileInputStream(file);
+            Workbook book = Workbook.getWorkbook(is);
+            book.getNumberOfSheets();
+            Sheet sheet = book.getSheet(0);
+            int Rows = sheet.getRows();
+            int columns = sheet.getColumns();
+            if (Rows <= 2) {
+                Toast.makeText(this, "该文件里边数据是空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            datas = new ArrayList<>();
+            for (int i = 2; i < Rows; ++i) { //获取行数 ，
+                LoginReceBean.DataBean.ResearchPaper paper = new LoginReceBean.DataBean.ResearchPaper();
+                String paper_name = sheet.getCell(1, i).getContents();
+                String paper_author = sheet.getCell(2, i).getContents();
+                String paper_otherauthor = sheet.getCell(3, i).getContents();
+                String paper_periodical_code = sheet.getCell(4, i).getContents();
+                String paper_category = sheet.getCell(5, i).getContents();
+                String paper_publish_date = sheet.getCell(6, i).getContents();
+                String paper_bear_palm = sheet.getCell(7, i).getContents();
+                if (!TextUtils.isEmpty(paper_name)) {
+
+                    paper.setPaper_name(paper_name);
+                }
+                if (!TextUtils.isEmpty(paper_author)) {
+                    paper.setPaper_author(paper_author);
+                }
+                if (!TextUtils.isEmpty(paper_otherauthor)) {
+                    paper.setPaper_otherauthor(paper_otherauthor);
+                }
+                if (!TextUtils.isEmpty(paper_periodical_code)) {
+                    paper.setPaper_periodical_code(paper_periodical_code);
+                }
+                if (!TextUtils.isEmpty(paper_category)) {
+                    paper.setPaper_category(paper_category);
+                }
+                if (!TextUtils.isEmpty(paper_publish_date)) {
+                    paper.setPaper_publish_date(paper_publish_date);
+                }
+                if (!TextUtils.isEmpty(paper_bear_palm)) {
+                    paper.setPaper_bear_palm(paper_bear_palm);
+                }
+                if(paper.getPaper_author() != null &&
+                        paper.getPaper_bear_palm()!= null &&
+                        paper.getPaper_category()!=null &&
+                        paper.getPaper_name()!=null&&
+                        paper.getPaper_otherauthor()!=null&&
+                        paper.getPaper_periodical_code()!=null&&
+                        paper.getPaper_publish_date()!=null
+                        ){
+                    datas.add(paper);
+                }
+
+            }
+            book.close();
+        } catch (Exception e) {
+            Log.e("yy", "e" + e);
+        }finally {
+            if (datas != null) {
+                //上传服务器
+                paperPresenter.saves(datas);
+            }
+        }
     }
 
     private void setEditData(EditText view, String data) {

@@ -121,6 +121,7 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
     }
 
     public void readExcel(String uri) {
+        this.showLoadingDialog();
         ArrayList<LoginReceBean.DataBean.ResearchPro> datas = null;
         try {
             File file = new File(uri);
@@ -162,7 +163,9 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
                 if (!TextUtils.isEmpty(pro_bear_palm)) {
                     pro.setPro_bear_palm(pro_bear_palm);
                 }
-                datas.add(pro);
+                if (pro.getPro_name() != null && pro.getPro_money() != null && pro.getPro_finish_date() != null && pro.getPro_current_status() != null && pro.getPro_bear_palm() != null) {
+                    datas.add(pro);
+                }
             }
             book.close();
         } catch (Exception e) {

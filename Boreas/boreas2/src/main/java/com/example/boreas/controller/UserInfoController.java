@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -114,6 +115,34 @@ public class UserInfoController {
         return Response.ok().setretCode(Constants.SUCCESS);
     }
 
+    @PostMapping("/insertPros")
+    public Response insertPros(@RequestBody ArrayList<ResearchProjectInfo> projectInfos) {
+        if (projectInfos == null || projectInfos.size() == 0) {
+            return Response.fail("导入项目信息不能是空").setretCode(Constants.FAILED);
+        }
+        System.out.println(projectInfos.size());
+        List<ResearchProjectInfo> tempProjectInfos = handlerUserInfoService.queryPro();
+        int line = 0;
+        for (ResearchProjectInfo tempPro : projectInfos) { // 上传的数据
+
+            boolean isEmpty = true;
+            for (ResearchProjectInfo inTempPro : tempProjectInfos) { //本地数据
+                if (tempPro.getPro_name().equals(inTempPro.getPro_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    isEmpty = false;
+                }
+            }
+            if (isEmpty) {
+                handlerUserInfoService.addPro(tempPro);
+                line++;
+            }
+        }
+        if (line > 0) {
+            System.out.println("添加的数据 数量：" + line);
+        }
+        return Response.ok().setretCode(Constants.SUCCESS);
+    }
+
+
     @PostMapping("/updatePro")
     public Response updatePro(@RequestBody ResearchProjectInfo projectInfo) {
         System.out.println(projectInfo.toString());
@@ -156,6 +185,32 @@ public class UserInfoController {
             handlerUserInfoService.addPaper(paper);
         } else {
             handlerUserInfoService.addPaper(paper);
+        }
+        return Response.ok().setretCode(Constants.SUCCESS);
+    }
+    @PostMapping("/insertPapers")
+    public Response insertPapers(@RequestBody ArrayList<ResearchPaper> ResearchPapers) {
+        if (ResearchPapers == null || ResearchPapers.size() == 0) {
+            return Response.fail("导入论文信息不能是空").setretCode(Constants.FAILED);
+        }
+        System.out.println(ResearchPapers.size());
+        List<ResearchPaper> tempPapers = handlerUserInfoService.queryPaper();
+        int line = 0;
+        for (ResearchPaper tempPaper : ResearchPapers) { // 上传的数据
+
+            boolean isEmpty = true;
+            for (ResearchPaper inTempPaper : tempPapers) { //本地数据
+                if (tempPaper.getPaper_name().equals(inTempPaper.getPaper_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    isEmpty = false;
+                }
+            }
+            if (isEmpty) {
+                handlerUserInfoService.addPaper(tempPaper);
+                line++;
+            }
+        }
+        if (line > 0) {
+            System.out.println("添加的数据 数量：" + line);
         }
         return Response.ok().setretCode(Constants.SUCCESS);
     }
@@ -204,6 +259,34 @@ public class UserInfoController {
         }
         return Response.ok().setretCode(Constants.SUCCESS);
     }
+
+    @PostMapping("/insertComPositons")
+    public Response insertComPositons(@RequestBody ArrayList<ComPosition> comPositions) {
+        if (comPositions == null || comPositions.size() == 0) {
+            return Response.fail("导入著作信息不能是空").setretCode(Constants.FAILED);
+        }
+        System.out.println(comPositions.size());
+        List<ComPosition> tempComPositions = handlerUserInfoService.queryCom();
+        int line = 0;
+        for (ComPosition tempComPosition : comPositions) { // 上传的数据
+
+            boolean isEmpty = true;
+            for (ComPosition inTempComPosition : tempComPositions) { //本地数据
+                if (tempComPosition.getBook_name().equals(inTempComPosition.getBook_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    isEmpty = false;
+                }
+            }
+            if (isEmpty) {
+                handlerUserInfoService.addComPosition(tempComPosition);
+                line++;
+            }
+        }
+        if (line > 0) {
+            System.out.println("添加的数据 数量：" + line);
+        }
+        return Response.ok().setretCode(Constants.SUCCESS);
+    }
+
 
     @PostMapping("/updateComPositon")
     public Response updateComPositon(@RequestBody ComPosition comPosition) {
