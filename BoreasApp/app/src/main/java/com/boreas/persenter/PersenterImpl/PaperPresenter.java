@@ -84,7 +84,7 @@ public class PaperPresenter extends IPaperPresenter {
 
     @Override
     public void noNetWork() {
-
+        iPaperViewInterface.showNoNetWork();
     }
 
     @Override

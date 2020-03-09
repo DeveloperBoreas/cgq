@@ -1,4 +1,5 @@
 spring:
+
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/boreas?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
@@ -12,3 +13,9 @@ spring:
   servlet:
     multipart: 10MB
 upload-path: file:/E:/fileUpload/
+person:
+  name: 张三
+  age: 20
+  maps: {a: 1, b: 2}
+
+

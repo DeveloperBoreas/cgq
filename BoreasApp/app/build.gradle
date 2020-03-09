@@ -59,4 +59,5 @@ dependencies {
     implementation 'com.lcw.library:imagepicker:2.2.7'
 
     implementation 'net.sourceforge.jexcelapi:jxl:2.6.12'
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.8.2@aar'
 }

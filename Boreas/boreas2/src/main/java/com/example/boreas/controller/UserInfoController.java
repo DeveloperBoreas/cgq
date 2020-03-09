@@ -4,11 +4,14 @@ import com.example.boreas.Constants;
 import com.example.boreas.model.*;
 import com.example.boreas.response.Response;
 import com.example.boreas.service.HandlerUserInfoService;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -128,7 +131,11 @@ public class UserInfoController {
             boolean isEmpty = true;
             for (ResearchProjectInfo inTempPro : tempProjectInfos) { //本地数据
                 if (tempPro.getPro_name().equals(inTempPro.getPro_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    tempPro.setId(inTempPro.getId());
+                    handlerUserInfoService.addPro(tempPro);
                     isEmpty = false;
+                    line++;
+                    continue;
                 }
             }
             if (isEmpty) {
@@ -188,6 +195,7 @@ public class UserInfoController {
         }
         return Response.ok().setretCode(Constants.SUCCESS);
     }
+
     @PostMapping("/insertPapers")
     public Response insertPapers(@RequestBody ArrayList<ResearchPaper> ResearchPapers) {
         if (ResearchPapers == null || ResearchPapers.size() == 0) {
@@ -201,7 +209,11 @@ public class UserInfoController {
             boolean isEmpty = true;
             for (ResearchPaper inTempPaper : tempPapers) { //本地数据
                 if (tempPaper.getPaper_name().equals(inTempPaper.getPaper_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    tempPaper.setId(inTempPaper.getId());
+                    handlerUserInfoService.addPaper(tempPaper);
                     isEmpty = false;
+                    line++;
+                    continue;
                 }
             }
             if (isEmpty) {
@@ -273,7 +285,11 @@ public class UserInfoController {
             boolean isEmpty = true;
             for (ComPosition inTempComPosition : tempComPositions) { //本地数据
                 if (tempComPosition.getBook_name().equals(inTempComPosition.getBook_name())) {//比较项目名是否相同，相同则视为一个项目,不同则进行保存
+                    tempComPosition.setId(inTempComPosition.getId());
+                    handlerUserInfoService.addComPosition(tempComPosition);
                     isEmpty = false;
+                    line++;
+                    continue;
                 }
             }
             if (isEmpty) {
@@ -286,7 +302,6 @@ public class UserInfoController {
         }
         return Response.ok().setretCode(Constants.SUCCESS);
     }
-
 
     @PostMapping("/updateComPositon")
     public Response updateComPositon(@RequestBody ComPosition comPosition) {
@@ -425,5 +440,33 @@ public class UserInfoController {
         }
 
         return Response.ok().setretCode(Constants.SUCCESS);
+    }
+
+    @GetMapping("/download")
+    public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request)
+    {
+        //1：复制一个模板
+        //2：往附件上添加数据
+        //3：通过数据流的方式进行文件传输
+
+        String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
+        try
+        {
+            String filePath = Global.getDownloadPath() + fileName;
+
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("multipart/form-data");
+            response.setHeader("Content-Disposition",
+                    "attachment;fileName=" + setFileDownloadHeader(request, realFileName));
+            FileUtils.writeBytes(filePath, response.getOutputStream());
+            if (delete)
+            {
+                FileUtils.deleteFile(filePath);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("下载文件失败", e);
+        }
     }
 }

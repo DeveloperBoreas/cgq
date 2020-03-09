@@ -1,13 +1,21 @@
 package com.example.boreas;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.security.RunAs;
 
 @SpringBootTest
-class BoreasApplicationTests {
+public class BoreasApplicationTests {
+
+    @Autowired
+    Person person;
 
     @Test
-    void contextLoads() {
+    public void contextLoads() {
+        System.out.println(person.toString());
     }
 
 }

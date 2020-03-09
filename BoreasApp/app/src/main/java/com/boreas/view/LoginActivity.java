@@ -1,5 +1,6 @@
 package com.boreas.view;
 
+import android.Manifest;
 import android.content.Intent;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -14,6 +15,9 @@ import com.boreas.modle.LoginReceBean;
 import com.boreas.persenter.PersenterImpl.LoginPersenterImpl;
 import com.boreas.view.IViewInterface.ILoginViewInterface;
 import com.bumptech.glide.Glide;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import io.reactivex.functions.Consumer;
 
 public class LoginActivity extends BaseActivity<ActivityLoginBinding> implements ILoginViewInterface<LoginReceBean> {
 
@@ -35,8 +39,24 @@ public class LoginActivity extends BaseActivity<ActivityLoginBinding> implements
         return R.layout.activity_login;
     }
 
+    private void requestPermission(){
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if(aBoolean){
+                            Toast.makeText(LoginActivity.this, "获取权限", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(LoginActivity.this, "没有获取必要的权限", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
     @Override
     public void initView(ActivityLoginBinding activityLoginBinding) {
+        this.requestPermission();
         this.binding = activityLoginBinding;
 //        Glide.with(this).load("http://172.20.10.12:8080/images/a.jpg").into(this.binding.logo);
         this.binding.login.setOnClickListener(new ClickProxy(view -> {

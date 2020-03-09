@@ -126,6 +126,7 @@ public class ComPositionActivity extends BaseActivity<ActivityComPositionBinding
     }
 
     public void readExcel(String uri) {
+        this.showLoadingDialog();
         ArrayList<LoginReceBean.DataBean.Composition> datas = null;
         try {
             File file = new File(uri);

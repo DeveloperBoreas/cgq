@@ -3,6 +3,8 @@ package com.boreas.view;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -36,6 +38,13 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
     public void initViewData() {
         this.showLoadingDialog();
         persenter.requestUserInfoList();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_edit_user,menu);
+       return true;
     }
 
     @Override

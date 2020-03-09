@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import io.reactivex.Observable;
 import jxl.Sheet;
 import jxl.Workbook;
 
@@ -120,6 +121,7 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
         }
     }
     public void readExcel(String uri) {
+        this.showLoadingDialog();
         ArrayList<LoginReceBean.DataBean.ResearchPaper> datas = null;
         try {
             File file = new File(uri);
@@ -278,6 +280,12 @@ public class PaperActivity extends BaseActivity<ActivityPaperBinding> implements
     public void onFailed(String msg) {
         this.dimissLoadingDialog();
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddPapersSuccess() {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "导入成功!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
