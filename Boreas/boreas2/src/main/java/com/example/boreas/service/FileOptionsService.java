@@ -31,8 +31,8 @@ public class FileOptionsService {
         if (userInfos != null && userInfos.size() > 0) {
             for (int i = 0; i < userInfos.size(); i++) {
                 UserInfo userInfo = userInfos.get(i);
-                Label label = new Label(0,i+3,userInfo.getud);
-                userSheet.addCell();
+                Label label = new Label(0,i+3,String.valueOf(userInfo.getUser_id()));
+                userSheet.addCell(label);
             }
         }
         //添加论文信息
@@ -54,7 +54,7 @@ public class FileOptionsService {
     }
 
 
-    public void writeBytes(File file, String newfilePath, OutputStream os) throws IOException {
+    public void writeBytes(File file, String newfilePath, OutputStream os) throws Exception {
         FileInputStream fis = null;
         try {
             File newFile = new File(newfilePath);
