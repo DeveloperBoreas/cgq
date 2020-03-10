@@ -3,6 +3,7 @@ package com.example.boreas.controller;
 import com.example.boreas.Constants;
 import com.example.boreas.model.*;
 import com.example.boreas.response.Response;
+import com.example.boreas.service.FileOptionsService;
 import com.example.boreas.service.HandlerUserInfoService;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +29,8 @@ public class UserInfoController {
     private String uploadPath;
     @Autowired
     HandlerUserInfoService handlerUserInfoService;
+    @Autowired
+    FileOptionsService fileOptionsService;
 
     @GetMapping("/queryClipue")
     public Response queryClipue() {
@@ -442,31 +446,30 @@ public class UserInfoController {
         return Response.ok().setretCode(Constants.SUCCESS);
     }
 
+    @Value("${download-path}")
+    private String downloadpaht;
+
     @GetMapping("/download")
-    public void fileDownload(String fileName, Boolean delete, HttpServletResponse response, HttpServletRequest request)
-    {
+    public void fileDownload(boolean delete, HttpServletResponse response, HttpServletRequest request) {
         //1：复制一个模板
         //2：往附件上添加数据
         //3：通过数据流的方式进行文件传输
-
-        String realFileName = System.currentTimeMillis() + fileName.substring(fileName.indexOf("_") + 1);
-        try
-        {
-            String filePath = Global.getDownloadPath() + fileName;
+        File file = new File("UserInfos.xls");
+        System.out.println("文件路径：" + file.getAbsolutePath());
+        try {
+            //添加数据
 
             response.setCharacterEncoding("utf-8");
             response.setContentType("multipart/form-data");
             response.setHeader("Content-Disposition",
-                    "attachment;fileName=" + setFileDownloadHeader(request, realFileName));
-            FileUtils.writeBytes(filePath, response.getOutputStream());
-            if (delete)
-            {
-                FileUtils.deleteFile(filePath);
+                    "attachment;fileName=" + URLEncoder.encode(file.getName(), "utf-8"));
+            fileOptionsService.writeBytes(file,downloadpaht, response.getOutputStream());
+            if (delete) {
+                fileOptionsService.deleteFile(downloadpaht);
             }
-        }
-        catch (Exception e)
-        {
-            log.error("下载文件失败", e);
+        } catch (Exception e) {
+            System.out.println("下载文件失败");
         }
     }
+
 }
