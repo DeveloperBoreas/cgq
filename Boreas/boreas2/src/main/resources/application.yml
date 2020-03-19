@@ -12,8 +12,8 @@ spring:
 
   servlet:
     multipart: 10MB
-upload-path: file:/E:/fileUpload/
-download-path: file:/E:/download/
+upload-path: E:/fileUpload/
+download-path: E:/download/
 person:
   name: 张三
   age: 20

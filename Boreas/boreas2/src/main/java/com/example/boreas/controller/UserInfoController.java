@@ -454,20 +454,25 @@ public class UserInfoController {
         //1：复制一个模板
         //2：往附件上添加数据
         //3：通过数据流的方式进行文件传输
-        File file = new File("UserInfos.xls");
-        System.out.println("文件路径：" + file.getAbsolutePath());
         try {
-            //添加数据
-
+            File file = new File(downloadpaht + "/UserInfos.xls");
+            String encodeName = URLEncoder.encode(file.getName(), "utf-8");
+            System.out.println("encodeName：" + encodeName);
+            if (file.exists()) {
+                System.out.println("文件路径：" + file.getAbsolutePath());
+            }
             response.setCharacterEncoding("utf-8");
             response.setContentType("multipart/form-data");
-            response.setHeader("Content-Disposition",
-                    "attachment;fileName=" + URLEncoder.encode(file.getName(), "utf-8"));
-            fileOptionsService.writeBytes(file,downloadpaht, response.getOutputStream());
+
+            response.setHeader("Content-Disposition", "attachment;");
+            response.setHeader("fileName", URLEncoder.encode(file.getName(), "utf-8"));
+            fileOptionsService.writeBytes(file, downloadpaht, response);
+
             if (delete) {
-                fileOptionsService.deleteFile(downloadpaht);
+                fileOptionsService.deleteFile(downloadpaht + "/TempUserInfo.xls");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             System.out.println("下载文件失败");
         }
     }
