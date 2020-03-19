@@ -33,7 +33,8 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends AppCompatA
         this.initViewData();
         this.registerReceiver(netWorkReceiver, filter);
     }
-    public void setVissIble(){
+
+    public void setVissIble() {
 
     }
 
@@ -55,7 +56,18 @@ public abstract class BaseActivity<T extends ViewDataBinding> extends AppCompatA
         progressDialog.setCancelable(true);
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
+    }
 
+    public ProgressDialog showProgressLoadingDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+        }
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setIndeterminate(false);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMax(100);
+        return progressDialog;
     }
 
     public void dimissLoadingDialog() {

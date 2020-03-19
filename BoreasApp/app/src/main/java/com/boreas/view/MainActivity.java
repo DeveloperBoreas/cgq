@@ -2,11 +2,15 @@ package com.boreas.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,8 +47,26 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_edit_user,menu);
-       return true;
+        menuInflater.inflate(R.menu.menu_edit_user, menu);
+        return true;
+    }
+
+    private ProgressDialog progressDialog;
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_export) {
+            progressDialog = showProgressLoadingDialog();
+            progressDialog.show();
+            persenter.exportFile(true);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onUpdateProgressCurrent(int num) {
+        Log.e("aaa","-----"+num);
+        progressDialog.setProgress(num);
     }
 
     @Override
@@ -129,5 +151,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
         this.dimissLoadingDialog();
         this.adapter.delete(index);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onExportFileSuccess(String name) {
+        this.dimissLoadingDialog();
+        Toast.makeText(this, "导出文件名称：" + name, Toast.LENGTH_SHORT).show();
     }
 }

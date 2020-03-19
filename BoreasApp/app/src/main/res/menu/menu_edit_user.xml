@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.boreas.view.EditUserActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_export"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="导出数据"
+        android:icon="@drawable/export"
         app:showAsAction="never" />
 </menu>
