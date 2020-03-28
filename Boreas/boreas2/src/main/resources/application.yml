@@ -12,7 +12,7 @@ spring:
 
   servlet:
     multipart: 10MB
-upload-path: E:/fileUpload/
+upload-path: file:E:/fileUpload/
 download-path: E:/download/
 person:
   name: 张三
