@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,7 +36,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
 
     @Override
     public void initPersenter() {
-        persenter = new MainPersenterImpl(this);
+        persenter = new MainPersenterImpl(this).setContext(this);
     }
 
     @Override
@@ -58,14 +59,13 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> implements I
         if (item.getItemId() == R.id.action_export) {
             progressDialog = showProgressLoadingDialog();
             progressDialog.show();
-            persenter.exportFile(true);
+            persenter.exportFile(false);
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onUpdateProgressCurrent(int num) {
-        Log.e("aaa","-----"+num);
         progressDialog.setProgress(num);
     }
 

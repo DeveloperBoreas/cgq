@@ -85,9 +85,9 @@ public class ProActivity extends BaseActivity<ActivityProBinding> implements IPr
             if (this.verParams()) {
                 LoginReceBean.DataBean.ResearchPro pro = new LoginReceBean.DataBean.ResearchPro();
                 pro.setPro_bear_palm(this.binding.bearPalm.getText().toString().trim());
-                pro.setPro_current_status(this.binding.status.getText().toString().trim());
+                pro.setPro_current_status(this.binding.status.getText().toString().trim().replace("%", ""));
                 pro.setPro_finish_date(this.binding.finishDateText.getText().toString().trim());
-                pro.setPro_money(this.binding.exp.getText().toString().trim());
+                pro.setPro_money(this.binding.exp.getText().toString().trim().replace("万", ""));
                 pro.setPro_level(Integer.parseInt(this.binding.level.getText().toString().trim()));
                 pro.setPro_name(this.binding.alias.getText().toString().trim());
                 this.showLoadingDialog();

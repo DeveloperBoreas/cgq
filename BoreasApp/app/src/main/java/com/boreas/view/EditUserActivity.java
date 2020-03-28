@@ -510,9 +510,9 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
             if (!pro.equals("")) {
                 this.binding.proText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, ProActivity.class);
-                    intent.putExtra("pro", info.getResearchPros().get(0));
+                    intent.putExtra("pro", tempPro);
                     intent.putExtra("isEdit", isEdit);
-                    this.startActivity(intent);
+                    this.startActivityForResult(intent, PRO_REQUEST);
                 }));
             }
             String paper = "";
@@ -529,9 +529,9 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
             if (!paper.equals("")) {
                 this.binding.paperText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, PaperActivity.class);
-                    intent.putExtra("paper", info.getResearchPapers().get(0));
+                    intent.putExtra("paper", this.tempPaper);
                     intent.putExtra("isEdit", isEdit);
-                    this.startActivity(intent);
+                    this.startActivityForResult(intent, PAPER_REQUEST);
                 }));
             }
             String com = "";
@@ -548,9 +548,9 @@ public class EditUserActivity extends BaseActivity<ActivityEditUserBinding> impl
             if (!com.equals("")) {
                 this.binding.comPositionText.setOnClickListener(new ClickProxy(v -> {
                     Intent intent = new Intent(this, ComPositionActivity.class);
-                    intent.putExtra("com", info.getCompositions().get(0));
+                    intent.putExtra("com", this.tempCom);
                     intent.putExtra("isEdit", isEdit);
-                    this.startActivity(intent);
+                    this.startActivityForResult(intent, COM_REQUEST);
                 }));
             }
             if (!isEdit) {
